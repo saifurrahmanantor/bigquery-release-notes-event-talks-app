@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Explorer</title>
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dark-theme">
+    <div class="bg-gradient-glow"></div>
+    
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="bq-logo">
+                    <i class="fa-solid fa-database logo-icon"></i>
+                    <div class="logo-accent"></div>
+                </div>
+                <div>
+                    <h1>BigQuery Release Notes</h1>
+                    <p class="subtitle">Stay updated with Google BigQuery feed releases & compose tweets instantly</p>
+                </div>
+            </div>
+            <div class="actions">
+                <span class="status-badge" id="last-updated-badge">
+                    <span class="status-dot"></span>
+                    <span id="last-updated-text">Checking...</span>
+                </span>
+                <button class="btn btn-primary btn-refresh" id="btn-refresh" title="Fetch fresh release notes">
+                    <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-content">
+        <!-- Dashboard Summary Grid -->
+        <section class="stats-section">
+            <div class="stat-card active" data-filter="all" id="stat-all">
+                <div class="stat-icon"><i class="fa-solid fa-list-check"></i></div>
+                <div class="stat-info">
+                    <span class="stat-val" id="count-all">-</span>
+                    <span class="stat-label">Total Updates</span>
+                </div>
+                <div class="active-indicator"></div>
+            </div>
+            <div class="stat-card" data-filter="Feature" id="stat-features">
+                <div class="stat-icon feature-icon"><i class="fa-solid fa-star"></i></div>
+                <div class="stat-info">
+                    <span class="stat-val" id="count-features">-</span>
+                    <span class="stat-label">Features</span>
+                </div>
+                <div class="active-indicator"></div>
+            </div>
+            <div class="stat-card" data-filter="Announcement" id="stat-announcements">
+                <div class="stat-icon announcement-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                <div class="stat-info">
+                    <span class="stat-val" id="count-announcements">-</span>
+                    <span class="stat-label">Announcements</span>
+                </div>
+                <div class="active-indicator"></div>
+            </div>
+            <div class="stat-card" data-filter="Issue" id="stat-issues">
+                <div class="stat-icon issue-icon"><i class="fa-solid fa-circle-exclamation"></i></div>
+                <div class="stat-info">
+                    <span class="stat-val" id="count-issues">-</span>
+                    <span class="stat-label">Issues / Fixes</span>
+                </div>
+                <div class="active-indicator"></div>
+            </div>
+        </section>
+
+        <!-- Search and Filter Bar -->
+        <section class="controls-section">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" placeholder="Search updates by keyword, category, or date..." autocomplete="off">
+                <button class="clear-search-btn" id="clear-search" style="display: none;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="filter-chips" id="filter-chips">
+                <button class="chip active" data-type="all">All</button>
+                <button class="chip" data-type="Feature">Feature</button>
+                <button class="chip" data-type="Announcement">Announcement</button>
+                <button class="chip" data-type="Issue">Issue</button>
+                <button class="chip" data-type="Changed">Changed</button>
+                <button class="chip" data-type="Deprecated">Deprecated</button>
+                <button class="chip" data-type="Fixed">Fixed</button>
+            </div>
+        </section>
+
+        <!-- Work Area: Timeline List & Twitter Composer -->
+        <div class="workspace-grid">
+            <!-- Left Side: Releases Feed List -->
+            <section class="feed-column">
+                <div class="feed-header">
+                    <h2 id="feed-title">Latest Updates</h2>
+                    <span class="results-count" id="results-count">Showing 0 updates</span>
+                </div>
+
+                <!-- Skeleton Loading State -->
+                <div class="skeleton-container" id="skeleton-loader">
+                    <div class="skeleton-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                </div>
+
+                <!-- Feed Content -->
+                <div class="releases-feed" id="releases-container" style="display: none;">
+                    <!-- Dynamically populated card items -->
+                </div>
+
+                <!-- No Results State -->
+                <div class="no-results" id="no-results-state" style="display: none;">
+                    <i class="fa-solid fa-folder-open no-results-icon"></i>
+                    <h3>No updates found</h3>
+                    <p>Try modifying your search keywords or resetting filters.</p>
+                    <button class="btn btn-secondary" id="btn-reset-filters">Reset Filters</button>
+                </div>
+            </section>
+
+            <!-- Right Side: Tweet Composer Panel -->
+            <aside class="composer-column" id="composer-sidebar">
+                <div class="composer-card sticky-sidebar">
+                    <div class="composer-header">
+                        <div class="composer-title-wrapper">
+                            <i class="fa-brands fa-x-twitter composer-logo"></i>
+                            <h3>Tweet Composer</h3>
+                        </div>
+                        <span class="selection-status" id="composer-selection-status">
+                            No update selected
+                        </span>
+                    </div>
+
+                    <!-- Welcome / Empty State for Composer -->
+                    <div class="composer-empty-state" id="composer-empty-state">
+                        <i class="fa-solid fa-pointer-trigger-arrow empty-icon"></i>
+                        <h4>Select an Update to Tweet</h4>
+                        <p>Click on any release card from the list to load it into the Composer and format it automatically for X (Twitter).</p>
+                    </div>
+
+                    <!-- Composer Form Content -->
+                    <div class="composer-form" id="composer-form" style="display: none;">
+                        <div class="selected-summary">
+                            <span class="badge" id="preview-badge">Feature</span>
+                            <span class="date" id="preview-date">June 16, 2026</span>
+                            <div class="selected-link-wrapper">
+                                <a id="preview-source-link" href="#" target="_blank" title="View official Google release notes documentation">
+                                    Source Docs <i class="fa-solid fa-up-right-from-square"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tweet-textarea">Customize Tweet content:</label>
+                            <div class="textarea-container">
+                                <textarea id="tweet-textarea" rows="7" placeholder="Draft your tweet here..."></textarea>
+                                <button class="btn-action-icon" id="btn-reset-draft" title="Reset to original format">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tweet Preview Layout (X Card style) -->
+                        <div class="tweet-preview-container">
+                            <span class="preview-label">Live Preview on X</span>
+                            <div class="x-card-preview">
+                                <div class="x-avatar">
+                                    <div class="x-avatar-placeholder"><i class="fa-solid fa-user"></i></div>
+                                </div>
+                                <div class="x-body">
+                                    <div class="x-user-info">
+                                        <span class="x-name">You</span>
+                                        <span class="x-handle">@username</span>
+                                        <span class="x-dot">·</span>
+                                        <span class="x-time">Just now</span>
+                                    </div>
+                                    <p class="x-text-content" id="x-text-preview"></p>
+                                    <div class="x-link-preview" id="x-link-preview-box">
+                                        <div class="x-link-img">
+                                            <i class="fa-solid fa-database"></i>
+                                        </div>
+                                        <div class="x-link-meta">
+                                            <span class="x-link-domain">cloud.google.com</span>
+                                            <span class="x-link-title">BigQuery Release Notes | Google Cloud</span>
+                                            <span class="x-link-desc">Stay informed about new features, improvements, and fixes for Google Cloud's BigQuery enterprise data warehouse...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats and Submit -->
+                        <div class="composer-footer">
+                            <div class="char-count-wrapper">
+                                <svg class="progress-ring" width="36" height="36">
+                                    <circle class="progress-ring__circle-bg" stroke="#1e293b" stroke-width="3" fill="transparent" r="14" cx="18" cy="18"/>
+                                    <circle class="progress-ring__circle" id="char-progress" stroke="#3b82f6" stroke-width="3" fill="transparent" r="14" cx="18" cy="18"/>
+                                </svg>
+                                <span class="char-count" id="char-count-text">280</span>
+                            </div>
+                            <button class="btn btn-tweet" id="btn-send-tweet">
+                                <i class="fa-brands fa-x-twitter"></i>
+                                <span>Post to X</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 BigQuery Release Notes Dashboard. Built using Flask & Vanilla UI.</p>
+            <p>Source Feed: <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank">Google Cloud Feeds <i class="fa-solid fa-up-right-from-square"></i></a></p>
+        </div>
+    </footer>
+
+    <!-- App Logic -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
