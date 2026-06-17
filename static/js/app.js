@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- DOM Elements ---
     const btnRefresh = document.getElementById('btn-refresh');
+    const btnExport = document.getElementById('btn-export');
     const refreshIcon = document.getElementById('refresh-icon');
     const lastUpdatedText = document.getElementById('last-updated-text');
     
@@ -248,16 +249,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="badge ${badgeClass}">${release.type}</span>
                         <span class="card-date"><i class="fa-regular fa-calendar-days"></i> ${release.date}</span>
                     </div>
-                    <button class="card-select-btn" title="Select this update to draft a Tweet">
-                        <i class="fa-solid ${isSelected ? 'fa-check' : 'fa-plus'}"></i>
-                    </button>
+                    <div class="card-actions">
+                        <button class="card-action-btn copy-btn" title="Copy plain text description to clipboard">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                        <button class="card-select-btn" title="Select this update to draft a Tweet">
+                            <i class="fa-solid ${isSelected ? 'fa-check' : 'fa-plus'}"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     ${release.html}
                 </div>
             `;
             
-            // Add click listener
+            // Bind Copy Button Handler
+            const copyBtn = card.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Avoid selecting the card
+                navigator.clipboard.writeText(release.text).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            });
+            
+            // Add click listener for selecting card
             card.addEventListener('click', (e) => {
                 // If user clicks a link inside the card, allow default behavior (opening link) 
                 // ONLY if they meant to click the link, but let's prevent default click selections
@@ -383,6 +405,49 @@ document.addEventListener('DOMContentLoaded', () => {
     btnRefresh.addEventListener('click', () => {
         fetchReleases(true);
     });
+
+    // Export to CSV Click
+    btnExport.addEventListener('click', () => {
+        exportToCSV();
+    });
+
+    function exportToCSV() {
+        if (state.filteredReleases.length === 0) {
+            alert("No release notes available to export.");
+            return;
+        }
+
+        let csvContent = "";
+        // CSV Header
+        csvContent += '"Date","Type","Description","Documentation Link"\r\n';
+
+        // Add rows
+        state.filteredReleases.forEach(rel => {
+            // Escape double quotes by doubling them
+            const dateVal = rel.date.replace(/"/g, '""');
+            const typeVal = rel.type.replace(/"/g, '""');
+            const textVal = rel.text.replace(/"/g, '""');
+            const linkVal = rel.link.replace(/"/g, '""');
+
+            csvContent += `"${dateVal}","${typeVal}","${textVal}","${linkVal}"\r\n`;
+        });
+
+        // Use a blob for encoding support and handling large amounts of data
+        const csvData = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(csvData);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        // Generate nice filename: bigquery_releases_YYYY-MM-DD.csv
+        const today = new Date().toISOString().split('T')[0];
+        link.setAttribute("download", `bigquery_releases_${today}.csv`);
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
 
     // Stat Cards Filter Click
     const statsCards = [

@@ -630,7 +630,13 @@ a:hover {
     border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
-.card-select-btn {
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-action-btn, .card-select-btn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -640,12 +646,25 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     transition: var(--transition-smooth);
 }
 
+.release-card:hover .card-action-btn, 
 .release-card:hover .card-select-btn {
     border-color: var(--text-secondary);
     color: var(--text-primary);
+}
+
+.card-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.card-action-btn.copied {
+    border-color: var(--accent-emerald);
+    color: var(--accent-emerald);
+    background-color: rgba(52, 211, 153, 0.1);
+    box-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
 }
 
 .release-card.selected .card-select-btn {
