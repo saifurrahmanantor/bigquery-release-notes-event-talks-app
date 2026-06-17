@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshIcon = document.getElementById('refresh-icon');
     const lastUpdatedText = document.getElementById('last-updated-text');
     
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIconSun = document.getElementById('theme-icon-sun');
+    const themeIconMoon = document.getElementById('theme-icon-moon');
+
+    // --- Theme Initialization ---
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        document.body.classList.remove('dark-theme');
+        themeIconSun.style.display = 'inline-block';
+        themeIconMoon.style.display = 'none';
+    } else {
+        document.body.classList.add('dark-theme');
+        document.body.classList.remove('light-theme');
+        themeIconSun.style.display = 'none';
+        themeIconMoon.style.display = 'inline-block';
+    }
+    
     // Stats Cards
     const statAll = document.getElementById('stat-all');
     const statFeatures = document.getElementById('stat-features');
@@ -401,6 +420,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Interactive Event Listeners ---
     
+    // Theme Toggle Click
+    themeToggle.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-theme');
+        document.body.classList.toggle('dark-theme', !isLight);
+        
+        if (isLight) {
+            localStorage.setItem('theme', 'light');
+            themeIconSun.style.display = 'inline-block';
+            themeIconMoon.style.display = 'none';
+        } else {
+            localStorage.setItem('theme', 'dark');
+            themeIconSun.style.display = 'none';
+            themeIconMoon.style.display = 'inline-block';
+        }
+    });
+
     // Refresh Button Click
     btnRefresh.addEventListener('click', () => {
         fetchReleases(true);

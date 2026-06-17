@@ -1176,3 +1176,109 @@ a:hover {
         width: 100%;
     }
 }
+
+/* --- Light Theme Variables Override --- */
+body.light-theme {
+    --bg-primary: #f1f5f9;
+    --bg-secondary: #ffffff;
+    --bg-card: #f8fafc;
+    --bg-card-hover: #f1f5f9;
+    --bg-composer: #f8fafc;
+    
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-color-active: rgba(56, 189, 248, 0.5);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+}
+
+body.light-theme .bg-gradient-glow {
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.08) 0%, rgba(167, 139, 250, 0.04) 50%, transparent 100%);
+}
+
+body.light-theme .app-header {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+body.light-theme .brand h1 {
+    background: linear-gradient(to right, #0f172a, #475569);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .chip {
+    background-color: rgba(15, 23, 42, 0.02);
+}
+body.light-theme .chip:hover {
+    background-color: rgba(15, 23, 42, 0.05);
+}
+
+body.light-theme .stat-card {
+    background-color: #ffffff;
+}
+body.light-theme .stat-card:hover {
+    background-color: #f8fafc;
+}
+body.light-theme .stat-card.active {
+    background-color: #ffffff;
+}
+
+body.light-theme .release-card {
+    background-color: #ffffff;
+}
+body.light-theme .release-card:hover {
+    background-color: #f8fafc;
+}
+body.light-theme .release-card.selected {
+    background-color: #f0f9ff;
+    border-color: var(--accent-blue);
+}
+
+body.light-theme .composer-card {
+    background-color: #ffffff;
+}
+body.light-theme .composer-empty-state {
+    background-color: #ffffff;
+}
+body.light-theme .selected-summary {
+    background-color: #f8fafc;
+}
+
+body.light-theme .theme-toggle-btn {
+    background-color: rgba(15, 23, 42, 0.03);
+}
+body.light-theme .theme-toggle-btn:hover {
+    background-color: rgba(15, 23, 42, 0.06);
+}
+
+/* Theme Toggle Button Style */
+.theme-toggle-btn {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.theme-toggle-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+    background-color: rgba(255, 255, 255, 0.08);
+    transform: scale(1.05);
+}
+
+.theme-toggle-btn i {
+    font-size: 1.15rem;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:active i {
+    transform: rotate(45deg) scale(0.95);
+}
